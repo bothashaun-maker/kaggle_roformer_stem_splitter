@@ -1,0 +1,260 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# 🎛️ Stem Splitter — Mel-Band / BS Roformer (better than stock UVR5)\n",
+    "Runs on Kaggle free GPU (T4/P100). Output = clean stems as a downloadable zip for Reaper.\n",
+    "\n",
+    "**How to use:** File → Import Notebook → upload this .ipynb. Enable **Settings → Accelerator → GPU T4**.\n",
+    "Then upload your song with the folder icon (right sidebar), set INPUT_FILE below, and run cells top to bottom."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 1) Install audio-separator (GPU build) — handles model downloads automatically\n",
+    "!pip install -q \"audio-separator[gpu]\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 2) Point to your uploaded file (default: whatever audio file you uploaded to /kaggle/working)\n",
+    "import glob, os\n",
+    "\n",
+    "candidates = (glob.glob(\"/kaggle/working/*.wav\") + glob.glob(\"/kaggle/working/*.mp3\")\n",
+    "              + glob.glob(\"/kaggle/working/*.flac\") + glob.glob(\"/kaggle/input/*/*.wav\")\n",
+    "              + glob.glob(\"/kaggle/input/*/*.mp3\") + glob.glob(\"/kaggle/input/*/*.flac\"))\n",
+    "INPUT_FILE = candidates[0] if candidates else \"/kaggle/working/song.wav\"\n",
+    "print(\"Using:\", INPUT_FILE)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Choose your model\n",
+    "| MODEL | Use for |\n",
+    "|---|---|\n",
+    "| `model_mel_band_roformer_vocals.ckpt` | Best vocals / instrumental (karaoke) split |\n",
+    "| `model_bs_roformer_ep_317_sdr_12.9755.ckpt` | Current SOTA vocals split (heavier) |\n",
+    "| `model_mel_band_roformer_karaoke.ckpt` | Karaoke-style backing removal |\n",
+    "| `model_mel_band_roformer_crowd.ckpt` | Removes crowd/audience noise |\n",
+    "\n",
+    "For a full 4-stem split (vocals/drums/bass/other) we chain Demucs ft below."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 3) Vocal / Instrumental split — SOTA Roformer\n",
+    "from audio_separator.separator import Separator\n",
+    "\n",
+    "MODEL = \"model_mel_band_roformer_vocals.ckpt\"   # swap per table above\n",
+    "\n",
+    "sep = Separator(\n",
+    "    input_audio_path=INPUT_FILE,\n",
+    "    output_dir=\"/kaggle/working/stems\",\n",
+    "    output_format=\"wav\",\n",
+    "    normalization_threshold=0.9,\n",
+    "    use_autocast=True,\n",
+    ")\n",
+    "sep.load_model(model_filename=MODEL)\n",
+    "primary, secondary = sep.separate(INPUT_FILE)\n",
+    "print(\"Done:\", primary, \"|\", secondary)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 4) OPTIONAL: full 4-stem split (vocals / drums / bass / other) with BS-Roformer SOTA\n",
+    "#    Comment this cell out if you only want vocal/instrumental.\n",
+    "sep4 = Separator(\n",
+    "    input_audio_path=INPUT_FILE,\n",
+    "    output_dir=\"/kaggle/working/stems\",\n",
+    "    output_format=\"wav\",\n",
+    "    use_autocast=True,\n",
+    ")\n",
+    "sep4.load_model(model_filename=\"model_bs_roformer_ep_317_sdr_12.9755.ckpt\")\n",
+    "sep4.separate(INPUT_FILE)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 🎸 Exotic stems (guitar / piano / more)\n",
+    "\n",
+    "Two routes:\n",
+    "\n",
+    "**A) Demucs 6-stem (`htdemucs_6s`)** — the easy one. Outputs **vocals, drums, bass, guitar, piano, other** in one pass. Quality is a bit below Roformer but the guitar/piano separation is very usable.\n",
+    "\n",
+    "**B) Targeted Roformer passes** — run an *instrumental* stem back through specialist models for extra cleanup. See the model list in cell 6 to discover what your install offers."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 5) OPTIONAL: exotic stems — Demucs 6-stem (vocals/drums/bass/GUITAR/PIANO/other)\n",
+    "#    Comment out if you don't need it. Takes longer (6 stems).\n",
+    "!python -m demucs.separate -n htdemucs_6s --two-stems=vocals -o /kaggle/working/stems \"{INPUT_FILE}\" 2>/dev/null || (pip install -q demucs && python -m demucs.separate -n htdemucs_6s -o /kaggle/working/stems \"{INPUT_FILE}\")\n",
+    "print(\"6-stem split done — check /kaggle/working/stems/htdemucs_6s/\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 6) OPTIONAL: discover every model your audio-separator install can pull\n",
+    "#    Look for: guitar, piano, organ, drum, karaoke, crowd variants (new ones are added often)\n",
+    "!audio-separator --list_models"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 7) OPTIONAL: targeted cleanup passes — feed a stem BACK through a specialist model.\n",
+    "#    Example: clean the 'other' stem (where organ usually lands) with the karaoke model.\n",
+    "#    Change SOURCE stem + MODEL after you see filenames from the cells above.\n",
+    "SOURCE = \"/kaggle/working/stems/other.wav\"          # <- edit me\n",
+    "MODEL  = \"model_mel_band_roformer_karaoke.ckpt\"     # <- edit me\n",
+    "\n",
+    "if os.path.exists(SOURCE):\n",
+    "    sep_x = Separator(\n",
+    "        input_audio_path=SOURCE,\n",
+    "        output_dir=\"/kaggle/working/stems/cleaned\",\n",
+    "        output_format=\"wav\",\n",
+    "        use_autocast=True,\n",
+    "    )\n",
+    "    sep_x.load_model(model_filename=MODEL)\n",
+    "    sep_x.separate(SOURCE)\n",
+    "    print(\"Cleanup pass done → /kaggle/working/stems/cleaned/\")\n",
+    "else:\n",
+    "    print(f\"SOURCE not found: {SOURCE} — check the exact stem filename first.\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 8) OPTIONAL: DRUMS — dedicated Roformer drum model + DrumSep kit-piece split\n",
+    "#    Level 1: pull a clean DRUMS stem from the mix (Roformer drum model).\n",
+    "#    Level 2: split the drum stem into KICK / SNARE / TOMS / HI-HATS / CYMBALS (DrumSep).\n",
+    "import os, glob\n",
+    "\n",
+    "# --- Level 1: dedicated drum stem from the full mix ---\n",
+    "DRUM_MODEL = \"model_mel_band_roformer_drum_rad.ckpt\"  # if it fails, pick a 'drum' model from cell 6's list\n",
+    "sep_d = Separator(\n",
+    "    input_audio_path=INPUT_FILE,\n",
+    "    output_dir=\"/kaggle/working/stems/drums\",\n",
+    "    output_format=\"wav\",\n",
+    "    use_autocast=True,\n",
+    ")\n",
+    "try:\n",
+    "    sep_d.load_model(model_filename=DRUM_MODEL)\n",
+    "    sep_d.separate(INPUT_FILE)\n",
+    "except Exception as e:\n",
+    "    print(f\"{DRUM_MODEL} not available ({e}). Fall back to Demucs drums:\")\n",
+    "    !python -m demucs.separate -n htdemucs_ft --two-stems=drums -o /kaggle/working/stems/drums \"{INPUT_FILE}\"\n",
+    "\n",
+    "DRUMS_STEM = (glob.glob(\"/kaggle/working/stems/drums/**/drums*.wav\", recursive=True)\n",
+    "              or glob.glob(\"/kaggle/working/stems/drums/**/*.wav\", recursive=True))\n",
+    "DRUMS_STEM = DRUMS_STEM[0] if DRUMS_STEM else None\n",
+    "print(\"Drums stem:\", DRUMS_STEM)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# --- Level 2: DrumSep -> kick / snare / toms / hi-hats / cymbals ---\n",
+    "#    First run of this cell downloads the DrumSep checkpoint automatically.\n",
+    "!pip install -q drumsep\n",
+    "\n",
+    "if DRUMS_STEM:\n",
+    "    from drumsep import separate_drums\n",
+    "    OUT = \"/kaggle/working/stems/kit\"\n",
+    "    os.makedirs(OUT, exist_ok=True)\n",
+    "    separate_drums(DRUMS_STEM, OUT)\n",
+    "    print(\"Kit pieces → /kaggle/working/stems/kit/\")\n",
+    "    for f in sorted(glob.glob(OUT + \"/*.wav\")):\n",
+    "        print(\"  -\", os.path.basename(f))\n",
+    "else:\n",
+    "    print(\"No drums stem found — run the Level 1 cell above first.\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 9) Zip all stems and (if needed) downsample to 24-bit for smaller download\n",
+    "import os, glob, zipfile\n",
+    "\n",
+    "files = glob.glob(\"/kaggle/working/stems/**/*.wav\", recursive=True)\n",
+    "print(f\"{len(files)} stem files:\")\n",
+    "for f in files:\n",
+    "    print(\"  -\", os.path.basename(f), f\"{os.path.getsize(f)/1e6:.1f} MB\")\n",
+    "\n",
+    "with zipfile.ZipFile(\"/kaggle/working/all_stems.zip\", \"w\", zipfile.ZIP_STORED) as z:\n",
+    "    for f in files:\n",
+    "        z.write(f, os.path.relpath(f, \"/kaggle/working/stems\"))\n",
+    "print(\"Ready: /kaggle/working/all_stems.zip  → download from the Output panel\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Into Reaper\n",
+    "1. Download `all_stems.zip` from Kaggle's **Output** tab\n",
+    "2. Unzip → drag the stems into your project → they align at 0:00 (same source clock)\n",
+    "3. Reamp/mix freely — lead vox stays dry-forward per your no-reverb style 😉\n",
+    "\n",
+    "**Quality tips:** lossless in (WAV/FLAC) = lossless stems out. If vocals still bleed, run the *other* stem through the vocal model a second time (double-pass trick).\n",
+    "\n",
+    "🥁 **Drum workflow:** cells 8a+8b give you a dedicated drums stem AND the kit-piece split (kick/snare/toms/hats/cymbals). In Reaper: gate the kick, saturate the snare, bus the cymbals — remix the drummer after the fact. Note DrumSep works best on stems, not raw mixes — always run it on the Level-1 drums stem."
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "name": "python"
+  },
+  "accelerator": "GPU"
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
