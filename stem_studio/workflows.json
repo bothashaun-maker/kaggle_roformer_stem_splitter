@@ -1,0 +1,797 @@
+{
+  "six": {
+    "last_node_id": 6,
+    "last_link_id": 5,
+    "nodes": [
+      {
+        "id": 1,
+        "type": "SSLoadSong",
+        "pos": [
+          0,
+          0
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 0,
+        "mode": 0,
+        "title": "1 \u00b7 Upload / select your original song",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "song",
+            "type": "SS_SOURCE",
+            "links": [
+              1
+            ]
+          }
+        ],
+        "widgets_values": [
+          "(upload a song first)",
+          ""
+        ],
+        "properties": {
+          "Node name for S&R": "SSLoadSong"
+        }
+      },
+      {
+        "id": 2,
+        "type": "SSSettings",
+        "pos": [
+          0,
+          300
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 1,
+        "mode": 0,
+        "title": "2 \u00b7 Model and quality \u2014 one window at a time",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "settings",
+            "type": "SS_SETTINGS",
+            "links": [
+              2
+            ]
+          }
+        ],
+        "widgets_values": [
+          "Six stems - BS RoFormer SW",
+          "Six stems",
+          "Balanced"
+        ],
+        "properties": {
+          "Node name for S&R": "SSSettings"
+        }
+      },
+      {
+        "id": 3,
+        "type": "SSSeparate",
+        "pos": [
+          430,
+          0
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 2,
+        "mode": 0,
+        "title": "3 \u00b7 Split song on GPU",
+        "inputs": [
+          {
+            "name": "song",
+            "type": "SS_SOURCE",
+            "link": 1
+          },
+          {
+            "name": "settings",
+            "type": "SS_SETTINGS",
+            "link": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "stems",
+            "type": "SS_STEMS",
+            "links": [
+              3,
+              4
+            ]
+          }
+        ],
+        "widgets_values": [],
+        "properties": {
+          "Node name for S&R": "SSSeparate"
+        }
+      },
+      {
+        "id": 4,
+        "type": "SSExport",
+        "pos": [
+          860,
+          0
+        ],
+        "size": [
+          410,
+          260
+        ],
+        "flags": {},
+        "order": 3,
+        "mode": 0,
+        "title": "4 \u00b7 Download aligned WAV stems + ZIP",
+        "inputs": [
+          {
+            "name": "stems",
+            "type": "SS_STEMS",
+            "link": 3
+          }
+        ],
+        "outputs": [],
+        "widgets_values": [],
+        "properties": {
+          "Node name for S&R": "SSExport"
+        }
+      },
+      {
+        "id": 5,
+        "type": "SSPreview",
+        "pos": [
+          430,
+          300
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 4,
+        "mode": 0,
+        "title": "5 \u00b7 Choose a stem and audition position",
+        "inputs": [
+          {
+            "name": "stems",
+            "type": "SS_STEMS",
+            "link": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "AUDIO",
+            "type": "AUDIO",
+            "links": [
+              5
+            ]
+          }
+        ],
+        "widgets_values": [
+          "vocals",
+          0.0,
+          20.0
+        ],
+        "properties": {
+          "Node name for S&R": "SSPreview"
+        }
+      },
+      {
+        "id": 6,
+        "type": "PreviewAudio",
+        "pos": [
+          860,
+          340
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 5,
+        "mode": 0,
+        "title": "6 \u00b7 Listen here; original export remains float WAV",
+        "inputs": [
+          {
+            "name": "audio",
+            "type": "AUDIO",
+            "link": 5
+          }
+        ],
+        "outputs": [],
+        "widgets_values": [],
+        "properties": {
+          "Node name for S&R": "PreviewAudio"
+        }
+      }
+    ],
+    "links": [
+      [
+        1,
+        1,
+        0,
+        3,
+        0,
+        "SS_SOURCE"
+      ],
+      [
+        2,
+        2,
+        0,
+        3,
+        1,
+        "SS_SETTINGS"
+      ],
+      [
+        3,
+        3,
+        0,
+        4,
+        0,
+        "SS_STEMS"
+      ],
+      [
+        4,
+        3,
+        0,
+        5,
+        0,
+        "SS_STEMS"
+      ],
+      [
+        5,
+        5,
+        0,
+        6,
+        0,
+        "AUDIO"
+      ]
+    ],
+    "groups": [],
+    "config": {},
+    "extra": {
+      "ds": {
+        "scale": 0.8,
+        "offset": [
+          150,
+          160
+        ]
+      }
+    },
+    "version": 0.4
+  },
+  "four": {
+    "last_node_id": 6,
+    "last_link_id": 5,
+    "nodes": [
+      {
+        "id": 1,
+        "type": "SSLoadSong",
+        "pos": [
+          0,
+          0
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 0,
+        "mode": 0,
+        "title": "1 \u00b7 Upload / select your original song",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "song",
+            "type": "SS_SOURCE",
+            "links": [
+              1
+            ]
+          }
+        ],
+        "widgets_values": [
+          "(upload a song first)",
+          ""
+        ],
+        "properties": {
+          "Node name for S&R": "SSLoadSong"
+        }
+      },
+      {
+        "id": 2,
+        "type": "SSSettings",
+        "pos": [
+          0,
+          300
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 1,
+        "mode": 0,
+        "title": "2 \u00b7 Model and quality \u2014 one window at a time",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "settings",
+            "type": "SS_SETTINGS",
+            "links": [
+              2
+            ]
+          }
+        ],
+        "widgets_values": [
+          "Six stems - BS RoFormer SW",
+          "Four stems",
+          "Balanced"
+        ],
+        "properties": {
+          "Node name for S&R": "SSSettings"
+        }
+      },
+      {
+        "id": 3,
+        "type": "SSSeparate",
+        "pos": [
+          430,
+          0
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 2,
+        "mode": 0,
+        "title": "3 \u00b7 Split song on GPU",
+        "inputs": [
+          {
+            "name": "song",
+            "type": "SS_SOURCE",
+            "link": 1
+          },
+          {
+            "name": "settings",
+            "type": "SS_SETTINGS",
+            "link": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "stems",
+            "type": "SS_STEMS",
+            "links": [
+              3,
+              4
+            ]
+          }
+        ],
+        "widgets_values": [],
+        "properties": {
+          "Node name for S&R": "SSSeparate"
+        }
+      },
+      {
+        "id": 4,
+        "type": "SSExport",
+        "pos": [
+          860,
+          0
+        ],
+        "size": [
+          410,
+          260
+        ],
+        "flags": {},
+        "order": 3,
+        "mode": 0,
+        "title": "4 \u00b7 Download aligned WAV stems + ZIP",
+        "inputs": [
+          {
+            "name": "stems",
+            "type": "SS_STEMS",
+            "link": 3
+          }
+        ],
+        "outputs": [],
+        "widgets_values": [],
+        "properties": {
+          "Node name for S&R": "SSExport"
+        }
+      },
+      {
+        "id": 5,
+        "type": "SSPreview",
+        "pos": [
+          430,
+          300
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 4,
+        "mode": 0,
+        "title": "5 \u00b7 Choose a stem and audition position",
+        "inputs": [
+          {
+            "name": "stems",
+            "type": "SS_STEMS",
+            "link": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "AUDIO",
+            "type": "AUDIO",
+            "links": [
+              5
+            ]
+          }
+        ],
+        "widgets_values": [
+          "vocals",
+          0.0,
+          20.0
+        ],
+        "properties": {
+          "Node name for S&R": "SSPreview"
+        }
+      },
+      {
+        "id": 6,
+        "type": "PreviewAudio",
+        "pos": [
+          860,
+          340
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 5,
+        "mode": 0,
+        "title": "6 \u00b7 Listen here; original export remains float WAV",
+        "inputs": [
+          {
+            "name": "audio",
+            "type": "AUDIO",
+            "link": 5
+          }
+        ],
+        "outputs": [],
+        "widgets_values": [],
+        "properties": {
+          "Node name for S&R": "PreviewAudio"
+        }
+      }
+    ],
+    "links": [
+      [
+        1,
+        1,
+        0,
+        3,
+        0,
+        "SS_SOURCE"
+      ],
+      [
+        2,
+        2,
+        0,
+        3,
+        1,
+        "SS_SETTINGS"
+      ],
+      [
+        3,
+        3,
+        0,
+        4,
+        0,
+        "SS_STEMS"
+      ],
+      [
+        4,
+        3,
+        0,
+        5,
+        0,
+        "SS_STEMS"
+      ],
+      [
+        5,
+        5,
+        0,
+        6,
+        0,
+        "AUDIO"
+      ]
+    ],
+    "groups": [],
+    "config": {},
+    "extra": {
+      "ds": {
+        "scale": 0.8,
+        "offset": [
+          150,
+          160
+        ]
+      }
+    },
+    "version": 0.4
+  },
+  "vocals": {
+    "last_node_id": 6,
+    "last_link_id": 5,
+    "nodes": [
+      {
+        "id": 1,
+        "type": "SSLoadSong",
+        "pos": [
+          0,
+          0
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 0,
+        "mode": 0,
+        "title": "1 \u00b7 Upload / select your original song",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "song",
+            "type": "SS_SOURCE",
+            "links": [
+              1
+            ]
+          }
+        ],
+        "widgets_values": [
+          "(upload a song first)",
+          ""
+        ],
+        "properties": {
+          "Node name for S&R": "SSLoadSong"
+        }
+      },
+      {
+        "id": 2,
+        "type": "SSSettings",
+        "pos": [
+          0,
+          300
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 1,
+        "mode": 0,
+        "title": "2 \u00b7 Model and quality \u2014 one window at a time",
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "settings",
+            "type": "SS_SETTINGS",
+            "links": [
+              2
+            ]
+          }
+        ],
+        "widgets_values": [
+          "Vocals - Kim Mel-Band RoFormer",
+          "Vocals + instrumental",
+          "Balanced"
+        ],
+        "properties": {
+          "Node name for S&R": "SSSettings"
+        }
+      },
+      {
+        "id": 3,
+        "type": "SSSeparate",
+        "pos": [
+          430,
+          0
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 2,
+        "mode": 0,
+        "title": "3 \u00b7 Split song on GPU",
+        "inputs": [
+          {
+            "name": "song",
+            "type": "SS_SOURCE",
+            "link": 1
+          },
+          {
+            "name": "settings",
+            "type": "SS_SETTINGS",
+            "link": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "stems",
+            "type": "SS_STEMS",
+            "links": [
+              3,
+              4
+            ]
+          }
+        ],
+        "widgets_values": [],
+        "properties": {
+          "Node name for S&R": "SSSeparate"
+        }
+      },
+      {
+        "id": 4,
+        "type": "SSExport",
+        "pos": [
+          860,
+          0
+        ],
+        "size": [
+          410,
+          260
+        ],
+        "flags": {},
+        "order": 3,
+        "mode": 0,
+        "title": "4 \u00b7 Download aligned WAV stems + ZIP",
+        "inputs": [
+          {
+            "name": "stems",
+            "type": "SS_STEMS",
+            "link": 3
+          }
+        ],
+        "outputs": [],
+        "widgets_values": [],
+        "properties": {
+          "Node name for S&R": "SSExport"
+        }
+      },
+      {
+        "id": 5,
+        "type": "SSPreview",
+        "pos": [
+          430,
+          300
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 4,
+        "mode": 0,
+        "title": "5 \u00b7 Choose a stem and audition position",
+        "inputs": [
+          {
+            "name": "stems",
+            "type": "SS_STEMS",
+            "link": 4
+          }
+        ],
+        "outputs": [
+          {
+            "name": "AUDIO",
+            "type": "AUDIO",
+            "links": [
+              5
+            ]
+          }
+        ],
+        "widgets_values": [
+          "vocals",
+          0.0,
+          20.0
+        ],
+        "properties": {
+          "Node name for S&R": "SSPreview"
+        }
+      },
+      {
+        "id": 6,
+        "type": "PreviewAudio",
+        "pos": [
+          860,
+          340
+        ],
+        "size": [
+          360,
+          220
+        ],
+        "flags": {},
+        "order": 5,
+        "mode": 0,
+        "title": "6 \u00b7 Listen here; original export remains float WAV",
+        "inputs": [
+          {
+            "name": "audio",
+            "type": "AUDIO",
+            "link": 5
+          }
+        ],
+        "outputs": [],
+        "widgets_values": [],
+        "properties": {
+          "Node name for S&R": "PreviewAudio"
+        }
+      }
+    ],
+    "links": [
+      [
+        1,
+        1,
+        0,
+        3,
+        0,
+        "SS_SOURCE"
+      ],
+      [
+        2,
+        2,
+        0,
+        3,
+        1,
+        "SS_SETTINGS"
+      ],
+      [
+        3,
+        3,
+        0,
+        4,
+        0,
+        "SS_STEMS"
+      ],
+      [
+        4,
+        3,
+        0,
+        5,
+        0,
+        "SS_STEMS"
+      ],
+      [
+        5,
+        5,
+        0,
+        6,
+        0,
+        "AUDIO"
+      ]
+    ],
+    "groups": [],
+    "config": {},
+    "extra": {
+      "ds": {
+        "scale": 0.8,
+        "offset": [
+          150,
+          160
+        ]
+      }
+    },
+    "version": 0.4
+  }
+}

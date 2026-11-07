@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+*.ckpt
+*.safetensors
+*.wav
+*.flac
+*.mp3
+*.partial
+*.part
+artifacts/

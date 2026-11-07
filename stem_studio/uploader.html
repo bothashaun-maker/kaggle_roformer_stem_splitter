@@ -1,0 +1,35 @@
+<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stem Studio — Upload song</title>
+<style>body{background:#15171c;color:#eee;font:18px system-ui;max-width:650px;margin:50px auto;padding:20px}button,input{font:inherit;margin:14px 0}progress{width:100%;height:25px}pre{white-space:pre-wrap}a{color:#89c7ff}</style>
+<h1>Upload your song</h1>
+<p>Your original file is preserved. Uploads travel in small pieces and can resume after a connection interruption.</p>
+<input type="file" id="song" accept=".wav,.flac,.mp3,.m4a,.ogg,.opus,.aiff,.aif"><br>
+<button id="send">Upload / resume</button><progress id="bar" max="1" value="0"></progress><pre id="status">Choose your WAV or other audio file.</pre>
+<p>After upload, return to the canvas. The song list refreshes automatically. Select the song and press Run.</p>
+<p><a href="/?stem_studio=six">Six-stem canvas</a> · <a href="/?stem_studio=vocals">Vocal canvas</a> · <a href="/?stem_studio=four">Four-stem canvas</a></p>
+<script>
+const song=document.querySelector('#song'),button=document.querySelector('#send'),status=document.querySelector('#status'),bar=document.querySelector('#bar');
+async function request(url,options={}){const r=await fetch(url,options);const d=await r.json();if(!r.ok)throw new Error(d.error||`HTTP ${r.status}`);return d;}
+button.onclick=async()=>{
+ const file=song.files[0];if(!file){status.textContent='Choose a file first.';return;}
+ button.disabled=true;
+ const key=`stem-upload:${file.name}:${file.size}:${file.lastModified}`;
+ let id=sessionStorage.getItem(key);
+ try{
+  let data=await request('/stem/uploads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:file.name,size:file.size,id})});
+  id=data.id;sessionStorage.setItem(key,id);let offset=data.offset;
+  while(offset<file.size){
+   let sent=false;
+   for(let attempt=0;attempt<3&&!sent;attempt++){
+    try{data=await request(`/stem/uploads/${id}/${offset}`,{method:'PUT',body:file.slice(offset,offset+4*1024*1024)});offset=data.offset;sent=true;}
+    catch(error){if(attempt===2)throw error;await new Promise(r=>setTimeout(r,1000));data=await request('/stem/uploads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:file.name,size:file.size,id})});offset=data.offset;}
+   }
+   bar.value=offset/file.size;status.textContent=`Uploaded ${(100*offset/file.size).toFixed(1)}%`;
+  }
+  data=await request(`/stem/uploads/${id}/finish`,{method:'POST'});
+  status.textContent='Upload complete: '+data.filename+'\nReturn to the canvas and select this song.';
+  bar.value=1;try{new BroadcastChannel('stem-songs').postMessage({filename:data.filename});}catch{}
+ }catch(error){status.textContent=error.message+'\nKeep this page open. Press Upload / resume to retry.';}
+ finally{button.disabled=false;}
+};
+</script>
