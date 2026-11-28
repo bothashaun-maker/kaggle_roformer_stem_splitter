@@ -14,8 +14,8 @@ Executed on 7 November 2026. No user recording or Kaggle GPU time was used.
 - 16 automated tests passed, covering storage, private SDK request fields/signature,
   preservation after failed submissions, upload resume/rejection and partial-window
   coverage, along with float exports. Further tests cover source-clock preservation,
-  four-output grouping, worker error
-  delivery to the canvas, and builds. All three notebooks passed v4 schema validation.
+  four-output grouping, worker error delivery to the canvas, and builds. All three
+  notebooks passed v4 schema validation.
 - ComfyUI `423cbd20511becb1f16122ab518e92e58bfa03d9` with frontend 1.57.4 started on
   CPU and registered all custom stages plus native PreviewAudio.
 - Chromium: ordinary six-node canvas loaded, upload button displayed, a
