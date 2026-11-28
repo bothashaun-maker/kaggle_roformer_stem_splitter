@@ -12,8 +12,9 @@ Executed on 7 November 2026. No user recording or Kaggle GPU time was used.
   rate restoration, six float WAVs and ZIP passed on a 48-kHz synthetic recording.
   All six outputs retained its exact 14,413-frame count and stereo layout.
 - 16 automated tests passed, covering storage, private SDK request fields/signature,
-  failed-submission preservation, upload resume/rejection, partial-window coverage,
-  float exports, source-clock preservation, four-output grouping, worker error
+  preservation after failed submissions, upload resume/rejection and partial-window
+  coverage, along with float exports. Further tests cover source-clock preservation,
+  four-output grouping, worker error
   delivery to the canvas, and builds. All three notebooks passed v4 schema validation.
 - ComfyUI `423cbd20511becb1f16122ab518e92e58bfa03d9` with frontend 1.57.4 started on
   CPU and registered all custom stages plus native PreviewAudio.
@@ -30,11 +31,11 @@ Executed on 7 November 2026. No user recording or Kaggle GPU time was used.
   prompt serialization. The upload button is installed after graph configuration.
 
 The browser-uploaded large WAV bytes and downloaded ZIP bytes were compared
-directly with their originals; ZIP integrity and all six WAV entries passed.
+directly with their originals. ZIP integrity and all six WAV entries passed.
 
 Package installation retained Torch 2.11 CPU for these local tests. A CPU
 Torchvision build was used locally. The Kaggle launcher instead constrains its
-installed Torch/Torchvision/Torchaudio/NumPy/SciPy versions; it does not replace
+installed Torch/Torchvision/Torchaudio/NumPy/SciPy versions. It does not replace
 Kaggle's CUDA stack. Production rejects a missing CUDA device.
 
 Not established by these checks: actual T4 VRAM/time, musical separation quality,
